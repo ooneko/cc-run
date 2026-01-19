@@ -65,7 +65,7 @@ export function proxyStatus(): void {
   const ccRunConfig = getProxyConfig();
   const claudeProxy = getClaudeProxy();
 
-  console.log('CC-Run 代理配置:');
+  console.log('RunCC 代理配置:');
   console.log(`  状态: ${ccRunConfig.enabled ? '开启' : '关闭'}`);
   if (ccRunConfig.url) {
     console.log(`  地址: ${ccRunConfig.url}`);
@@ -89,16 +89,16 @@ export function proxyHelp(): void {
   console.log(`
 代理管理命令:
 
-  cc-run proxy on      开启代理（首次会提示输入代理地址）
-  cc-run proxy off     关闭代理
-  cc-run proxy reset   重置代理配置
-  cc-run proxy status  查看代理状态
-  cc-run proxy help    显示此帮助信息
+  runcc proxy on      开启代理（首次会提示输入代理地址）
+  runcc proxy off     关闭代理
+  runcc proxy reset   重置代理配置
+  runcc proxy status  查看代理状态
+  runcc proxy help    显示此帮助信息
 
 说明:
   - proxy on 会修改 ~/.claude/settings.json，添加 proxy 配置
   - proxy off 会删除 ~/.claude/settings.json 中的 proxy 配置
-  - 代理地址保存在 ~/.cc-run/config.json 中
+  - 代理地址保存在 ~/.runcc/config.json 中
 `);
 }
 

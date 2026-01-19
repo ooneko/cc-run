@@ -1,10 +1,10 @@
 #!/usr/bin/env bun
 /**
- * 模拟 Claude CLI - 用于测试 cc-run 的环境变量设置
+ * 模拟 Claude CLI - 用于测试 runcc 的环境变量设置
  *
  * 使用方法:
  * 1. 构建此脚本: bun build test/mock-claude.ts --outfile test/mock-claude --target node
- * 2. 添加到 PATH: export PATH="/Users/huabinhong/Code/cc-run/test:$PATH"
+ * 2. 添加到 PATH: export PATH="/Users/huabinhong/Code/runcc/test:$PATH"
  * 3. 运行测试: bun run src/index.ts glm
  */
 

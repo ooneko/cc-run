@@ -88,7 +88,7 @@ export async function runProvider(providerName: string, configureClaude: boolean
   const endpoint = getEndpointConfig(providerName);
   if (!endpoint) {
     console.error(`错误: 未找到 endpoint "${providerName}"`);
-    console.log('使用 "cc-run list" 查看可用的 endpoints');
+    console.log('使用 "runcc list" 查看可用的 endpoints');
     process.exit(1);
   }
 
@@ -127,7 +127,7 @@ export async function runProvider(providerName: string, configureClaude: boolean
   if (configureClaude) {
     setThirdPartyApi(endpoint.endpoint, token);
     console.log(`已配置原生 claude 命令使用 ${providerName}`);
-    console.log('使用 "cc-run --claude" 可恢复官方配置');
+    console.log('使用 "runcc --claude" 可恢复官方配置');
   }
 
   // 启动 Claude

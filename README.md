@@ -1,4 +1,4 @@
-# cc-run
+# runcc
 
 Claude CLI 启动器，支持切换不同的 API endpoint。
 
@@ -24,19 +24,19 @@ npm install -g .
 
 ```bash
 # 查看所有可用的 endpoints
-cc-run list
+runcc list
 
 # 使用第三方 endpoint
-cc-run glm
+runcc glm
 
 # 配置原生 claude 命令使用 glm
-cc-run glm --claude
+runcc glm --claude
 
 # 恢复原生 claude 使用官方 endpoint
-cc-run --claude
+runcc --claude
 
 # 启动官方 claude
-cc-run
+runcc
 ```
 
 ## 命令说明
@@ -45,29 +45,29 @@ cc-run
 
 | 命令 | 说明 |
 |------|------|
-| `cc-run` | 启动官方 claude |
-| `cc-run glm` | 使用 glm endpoint |
-| `cc-run deepseek` | 使用 deepseek endpoint |
-| `cc-run minimax` | 使用 minimax endpoint |
-| `cc-run list` | 列出所有 endpoints |
-| `cc-run add <name> <endpoint> [token]` | 添加自定义 endpoint |
-| `cc-run remove <name>` | 删除自定义 endpoint |
+| `runcc` | 启动官方 claude |
+| `runcc glm` | 使用 glm endpoint |
+| `runcc deepseek` | 使用 deepseek endpoint |
+| `runcc minimax` | 使用 minimax endpoint |
+| `runcc list` | 列出所有 endpoints |
+| `runcc add <name> <endpoint> [token]` | 添加自定义 endpoint |
+| `runcc remove <name>` | 删除自定义 endpoint |
 
 ### 原生命令配置
 
 | 命令 | 说明 |
 |------|------|
-| `cc-run <provider> --claude` | 配置原生 `claude` 命令使用第三方 endpoint |
-| `cc-run --claude` | 恢复原生 `claude` 命令使用官方 endpoint |
+| `runcc <provider> --claude` | 配置原生 `claude` 命令使用第三方 endpoint |
+| `runcc --claude` | 恢复原生 `claude` 命令使用官方 endpoint |
 
 ### 代理管理
 
 | 命令 | 说明 |
 |------|------|
-| `cc-run proxy on` | 开启代理 |
-| `cc-run proxy off` | 关闭代理 |
-| `cc-run proxy status` | 查看代理状态 |
-| `cc-run proxy reset` | 重置代理配置 |
+| `runcc proxy on` | 开启代理 |
+| `runcc proxy off` | 关闭代理 |
+| `runcc proxy status` | 查看代理状态 |
+| `runcc proxy reset` | 重置代理配置 |
 
 ## 内置 Endpoints
 
@@ -79,7 +79,7 @@ cc-run
 
 ## 配置文件
 
-### ~/.cc-run/config.json
+### ~/.runcc/config.json
 
 ```json
 {
@@ -117,46 +117,46 @@ cc-run
 ### 添加自定义 endpoint
 
 ```bash
-cc-run add my-api https://api.my-service.com/v1 sk-my-token
+runcc add my-api https://api.my-service.com/v1 sk-my-token
 ```
 
 ### 切换 endpoint
 
 ```bash
 # 使用 glm
-cc-run glm
+runcc glm
 
 # 使用 deepseek
-cc-run deepseek
+runcc deepseek
 
 # 使用自定义 endpoint
-cc-run my-api
+runcc my-api
 ```
 
 ### 配置代理
 
 ```bash
 # 开启代理（首次会提示输入代理地址）
-cc-run proxy on
+runcc proxy on
 
 # 查看代理状态
-cc-run proxy status
+runcc proxy status
 
 # 关闭代理
-cc-run proxy off
+runcc proxy off
 ```
 
 ### 配置原生命令
 
 ```bash
 # 让原生 claude 命令使用 glm
-cc-run glm --claude
+runcc glm --claude
 
 # 之后直接使用 claude 命令即可
 claude "你好"
 
 # 恢复使用官方 endpoint
-cc-run --claude
+runcc --claude
 ```
 
 ## Token 管理
@@ -164,11 +164,11 @@ cc-run --claude
 首次使用某个 endpoint 时，如果未配置 token，会提示输入：
 
 ```bash
-$ cc-run glm
+$ runcc glm
 请输入 glm 的 API Token: [输入框]
 ```
 
-Token 会被保存到 `~/.cc-run/config.json`，下次使用时无需再次输入。
+Token 会被保存到 `~/.runcc/config.json`，下次使用时无需再次输入。
 
 ## 开发
 

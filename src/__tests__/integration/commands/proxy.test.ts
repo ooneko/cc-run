@@ -4,7 +4,7 @@
  *
  * 关键设计决策：
  * 1. proxyOn() 涉及用户输入（promptProxyUrl），需要 mock readline
- * 2. 代理命令同时修改 cc-run 和 Claude 两个配置文件
+ * 2. 代理命令同时修改 runcc 和 Claude 两个配置文件
  * 3. 需要捕获多行 console.log 输出进行验证
  */
 
@@ -112,7 +112,7 @@ describe('proxy - 代理管理', () => {
       expect(consoleLogOutput[0]).toContain('http://proxy.example.com:8080');
       expect(consoleLogOutput[1]).toContain('配置文件');
 
-      // 验证 cc-run 配置更新
+      // 验证 runcc 配置更新
       const ccRunConfig = readCcRunConfig() as CcRunConfig;
       expect(ccRunConfig.proxy?.enabled).toBe(true);
       expect(ccRunConfig.proxy?.url).toBe('http://proxy.example.com:8080');
@@ -231,7 +231,7 @@ describe('proxy - 代理管理', () => {
       expect(consoleLogOutput).toHaveLength(1);
       expect(consoleLogOutput[0]).toContain('代理已关闭');
 
-      // 验证 cc-run 配置更新
+      // 验证 runcc 配置更新
       const ccRunConfig = readCcRunConfig() as CcRunConfig;
       expect(ccRunConfig.proxy?.enabled).toBe(false);
       expect(ccRunConfig.proxy?.url).toBe('http://proxy.example.com:8080'); // URL 保留
@@ -315,7 +315,7 @@ describe('proxy - 代理管理', () => {
       expect(consoleLogOutput).toHaveLength(1);
       expect(consoleLogOutput[0]).toContain('代理配置已重置');
 
-      // 验证 cc-run 配置清空
+      // 验证 runcc 配置清空
       // setProxyConfig(false) 会将 url 设为 undefined
       const ccRunConfig = readCcRunConfig() as CcRunConfig;
       expect(ccRunConfig.proxy?.enabled).toBe(false);
@@ -367,7 +367,7 @@ describe('proxy - 代理管理', () => {
 
       // 验证输出包含所有状态信息
       const output = consoleLogOutput.join('\n');
-      expect(output).toContain('CC-Run 代理配置');
+      expect(output).toContain('RunCC 代理配置');
       expect(output).toContain('状态: 开启');
       expect(output).toContain('http://proxy.example.com:8080');
       expect(output).toContain('启动官方时清除: 是');
@@ -445,7 +445,7 @@ describe('proxy - 代理管理', () => {
       expect(output).toContain('代理: 未配置');
     });
 
-    test('CC-Run 配置为空时应显示默认状态', () => {
+    test('RunCC 配置为空时应显示默认状态', () => {
       const { originalLog } = mockConsoleLog();
 
       // 创建空配置
@@ -459,7 +459,7 @@ describe('proxy - 代理管理', () => {
       restoreConsoleLog(originalLog);
 
       const output = consoleLogOutput.join('\n');
-      expect(output).toContain('CC-Run 代理配置');
+      expect(output).toContain('RunCC 代理配置');
       expect(output).toContain('状态: 关闭');
     });
   });
@@ -477,15 +477,15 @@ describe('proxy - 代理管理', () => {
       const output = consoleLogOutput.join('\n');
 
       // 验证包含所有命令
-      expect(output).toContain('cc-run proxy on');
-      expect(output).toContain('cc-run proxy off');
-      expect(output).toContain('cc-run proxy reset');
-      expect(output).toContain('cc-run proxy status');
-      expect(output).toContain('cc-run proxy help');
+      expect(output).toContain('runcc proxy on');
+      expect(output).toContain('runcc proxy off');
+      expect(output).toContain('runcc proxy reset');
+      expect(output).toContain('runcc proxy status');
+      expect(output).toContain('runcc proxy help');
 
       // 验证包含说明
       expect(output).toContain('~/.claude/settings.json');
-      expect(output).toContain('~/.cc-run/config.json');
+      expect(output).toContain('~/.runcc/config.json');
     });
   });
 

@@ -30,12 +30,12 @@ describe('Mock FS 工具验证', () => {
   test('应该创建临时 HOME 目录', () => {
     const tmpHome = getMockHome();
     expect(tmpHome).toBeDefined();
-    expect(tmpHome).toContain('cc-run-test-');
+    expect(tmpHome).toContain('runcc-test-');
     // HOME 已被重写，所以它们应该相等
     expect(tmpHome).toBe(process.env.HOME);
   });
 
-  test('应该创建 cc-run 配置文件', () => {
+  test('应该创建 runcc 配置文件', () => {
     createCcRunConfig({
       endpoints: [],
       tokens: { glm: 'test-token' },

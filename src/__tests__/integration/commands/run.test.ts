@@ -451,7 +451,7 @@ describe('runProvider - Provider 模式', () => {
     expect(env?.ANTHROPIC_AUTH_TOKEN).toBe('custom-token');
   });
 
-  test('应该使用 cc-run 代理配置（如果启用）', async () => {
+  test('应该使用 runcc 代理配置（如果启用）', async () => {
     const { runProvider } = await import('../../../commands/run.js');
 
     const config = createDefaultConfig();

@@ -23,5 +23,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for official Claude API and third-party providers (GLM, DeepSeek, Minimax)
 - Custom endpoint management (add/remove)
 - Proxy configuration support
-- Configuration persistence in `~/.cc-run/config.json`
+- Configuration persistence in `~/.runcc/config.json`
 - Integration with Claude CLI settings (`~/.claude/settings.json`)

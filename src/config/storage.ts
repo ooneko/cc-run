@@ -1,6 +1,6 @@
 /**
- * CC-Run 配置存储管理
- * 负责 ~/.cc-run/config.json 的读写操作
+ * RunCC 配置存储管理
+ * 负责 ~/.runcc/config.json 的读写操作
  */
 
 import type { CcRunConfig, Endpoint } from './types.js';
@@ -14,7 +14,7 @@ import { homedir } from 'node:os';
  */
 function getConfigDir(): string {
   const home = process.env.CC_RUN_TEST_HOME || homedir();
-  return join(home, '.cc-run');
+  return join(home, '.runcc');
 }
 
 /**

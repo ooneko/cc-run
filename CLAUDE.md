@@ -62,7 +62,7 @@ src/
 ├── config/              # 配置数据层
 │   ├── types.ts         # TypeScript 类型定义
 │   ├── endpoints.ts     # 内置 endpoints (glm/deepseek/minimax)
-│   └── storage.ts       # ~/.cc-run/config.json 读写
+│   └── storage.ts       # ~/.runcc/config.json 读写
 └── utils/               # 工具层
     ├── launcher.ts      # spawn Claude 进程
     ├── env.ts           # 环境变量构建
@@ -71,7 +71,7 @@ src/
 
 ## 双配置文件系统
 
-### ~/.cc-run/config.json (启动器私有配置)
+### ~/.runcc/config.json (启动器私有配置)
 
 存储自定义 endpoints、API tokens、最后使用的 endpoint、代理配置。
 
@@ -145,5 +145,5 @@ src/
 ## 依赖外部条件
 
 1. **Claude CLI**: 系统必须已安装 `claude` 命令
-2. **配置目录**: 自动创建 `~/.cc-run/` 和 `~/.claude/`
+2. **配置目录**: 自动创建 `~/.runcc/` 和 `~/.claude/`
 3. **Node 版本**: >= 18.0.0

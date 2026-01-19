@@ -1,14 +1,14 @@
 #!/usr/bin/env bun
 /**
  * 干运行测试脚本
- * 验证 cc-run 的环境变量设置和配置操作
+ * 验证 runcc 的环境变量设置和配置操作
  */
 
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { homedir } from 'node:os';
 
-const CC_RUN_CONFIG = join(homedir(), '.cc-run', 'config.json');
+const CC_RUN_CONFIG = join(homedir(), '.runcc', 'config.json');
 const CLAUDE_SETTINGS = join(homedir(), '.claude', 'settings.json');
 
 console.log('\n=== CC-Run 干运行测试 ===\n');
@@ -32,11 +32,11 @@ function showConfig(path: string, name: string) {
 
 // 测试函数
 async function testDryRun(provider: string, options: { claude?: boolean }) {
-  console.log(`\n--- 测试: cc-run ${provider}${options.claude ? ' --claude' : ''} ---\n`);
+  console.log(`\n--- 测试: runcc ${provider}${options.claude ? ' --claude' : ''} ---\n`);
 
   // 显示操作前配置
   console.log('【操作前配置】');
-  showConfig(CC_RUN_CONFIG, '~/.cc-run/config.json');
+  showConfig(CC_RUN_CONFIG, '~/.runcc/config.json');
   showConfig(CLAUDE_SETTINGS, '~/.claude/settings.json');
 
   // 模拟环境变量构建
@@ -58,7 +58,7 @@ async function testDryRun(provider: string, options: { claude?: boolean }) {
     const endpoint = endpoints[provider];
     if (endpoint) {
       console.log(`ANTHROPIC_BASE_URL=${endpoint}`);
-      console.log('ANTHROPIC_AUTH_TOKEN=<从 ~/.cc-run/config.json 读取或提示输入>');
+      console.log('ANTHROPIC_AUTH_TOKEN=<从 ~/.runcc/config.json 读取或提示输入>');
       console.log('http_proxy=<根据 proxy 配置>');
       console.log('https_proxy=<根据 proxy 配置>');
 
@@ -99,7 +99,7 @@ async function main() {
   switch (cmd) {
     case 'config':
       console.log('【当前配置】');
-      showConfig(CC_RUN_CONFIG, '~/.cc-run/config.json');
+      showConfig(CC_RUN_CONFIG, '~/.runcc/config.json');
       showConfig(CLAUDE_SETTINGS, '~/.claude/settings.json');
       break;
 
@@ -114,7 +114,7 @@ async function main() {
       break;
 
     case '--claude':
-      console.log('\n--- 测试: cc-run --claude ---\n');
+      console.log('\n--- 测试: runcc --claude ---\n');
       console.log('【操作前配置】');
       showConfig(CLAUDE_SETTINGS, '~/.claude/settings.json');
       console.log('【将执行操作】');
@@ -122,17 +122,17 @@ async function main() {
       break;
 
     case 'list':
-      console.log('\n--- 测试: cc-run list ---\n');
+      console.log('\n--- 测试: runcc list ---\n');
       console.log('【将显示】');
       console.log('内置 endpoints: glm, deepseek, minimax');
-      console.log('自定义 endpoints: 从 ~/.cc-run/config.json 读取\n');
+      console.log('自定义 endpoints: 从 ~/.runcc/config.json 读取\n');
       break;
 
     case 'proxy':
       const proxyCmd = rest[0];
       if (proxyCmd === 'status') {
-        console.log('\n--- 测试: cc-run proxy status ---\n');
-        showConfig(CC_RUN_CONFIG, '~/.cc-run/config.json');
+        console.log('\n--- 测试: runcc proxy status ---\n');
+        showConfig(CC_RUN_CONFIG, '~/.runcc/config.json');
         showConfig(CLAUDE_SETTINGS, '~/.claude/settings.json');
       }
       break;

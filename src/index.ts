@@ -53,14 +53,14 @@ import {
 const program = new Command();
 
 program
-  .name('cc-run')
+  .name('runcc')
   .description('Claude 启动器 - 支持切换不同的 API endpoint')
   .version('0.1.0');
 
-// cc-run list
+// runcc list
 program.command('list').description('列出所有可用的 endpoints').action(list);
 
-// cc-run add <name> <endpoint>
+// runcc add <name> <endpoint>
 program
   .command('add')
   .description('添加自定义 endpoint')
@@ -68,14 +68,14 @@ program
   .argument('<endpoint>', 'API 地址')
   .action(add);
 
-// cc-run remove <name>
+// runcc remove <name>
 program
   .command('remove')
   .description('删除自定义 endpoint')
   .argument('<name>', 'endpoint 名称')
   .action(remove);
 
-// cc-run proxy 子命令
+// runcc proxy 子命令
 const proxyCmd = program.command('proxy').description('代理管理');
 
 proxyCmd.command('on').description('开启代理').action(proxyOn);
@@ -103,14 +103,14 @@ program
       const passthroughArgs = extractPassthroughArgs(process.argv);
 
       if (!provider) {
-        // cc-run 或 cc-run --claude
+        // runcc 或 cc-run --claude
         if (options.claude) {
           restoreOfficial(passthroughArgs);
         } else {
           await runOfficial(passthroughArgs);
         }
       } else {
-        // cc-run <provider> [--claude]
+        // runcc <provider> [--claude]
         await runProvider(provider, options.claude, passthroughArgs);
       }
     } catch (error) {
@@ -118,9 +118,9 @@ program
         console.error('❌ 参数位置不正确');
         console.error('');
         console.error('正确的用法示例:');
-        console.error('  cc-run glm -- <claude参数>     # 使用 glm provider 并透传参数');
-        console.error('  cc-run --claude -- <参数>       # 恢复官方配置并透传参数');
-        console.error('  cc-run glm --claude -- <参数>   # 配置原生 claude 命令使用 glm');
+        console.error('  runcc glm -- <claude参数>     # 使用 glm provider 并透传参数');
+        console.error('  runcc --claude -- <参数>       # 恢复官方配置并透传参数');
+        console.error('  runcc glm --claude -- <参数>   # 配置原生 claude 命令使用 glm');
         console.error('');
         console.error('说明: -- 分隔符用于将后续参数透传给 Claude CLI');
         process.exit(1);

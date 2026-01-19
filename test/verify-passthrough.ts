@@ -10,28 +10,28 @@ console.log('=== 参数透传功能验证 ===\n');
 // 测试场景
 const scenarios = [
   {
-    name: '场景1: cc-run glm -- --dangerously-skip-permissions',
-    argv: ['node', 'cc-run', 'glm', '--', '--dangerously-skip-permissions'],
+    name: '场景1: runcc glm -- --dangerously-skip-permissions',
+    argv: ['node', 'runcc', 'glm', '--', '--dangerously-skip-permissions'],
     expected: ['--dangerously-skip-permissions'],
   },
   {
-    name: '场景2: cc-run --claude -- --verbose',
-    argv: ['node', 'cc-run', '--claude', '--', '--verbose'],
+    name: '场景2: runcc --claude -- --verbose',
+    argv: ['node', 'runcc', '--claude', '--', '--verbose'],
     expected: ['--verbose'],
   },
   {
-    name: '场景3: cc-run deepseek -- --prompt "hello" --verbose',
-    argv: ['node', 'cc-run', 'deepseek', '--', '--prompt', 'hello', '--verbose'],
+    name: '场景3: runcc deepseek -- --prompt "hello" --verbose',
+    argv: ['node', 'runcc', 'deepseek', '--', '--prompt', 'hello', '--verbose'],
     expected: ['--prompt', 'hello', '--verbose'],
   },
   {
-    name: '场景4: cc-run glm (无透传参数)',
-    argv: ['node', 'cc-run', 'glm'],
+    name: '场景4: runcc glm (无透传参数)',
+    argv: ['node', 'runcc', 'glm'],
     expected: [],
   },
   {
-    name: '场景5: 错误情况 - cc-run -- --verbose',
-    argv: ['node', 'cc-run', '--', '--verbose'],
+    name: '场景5: 错误情况 - runcc -- --verbose',
+    argv: ['node', 'runcc', '--', '--verbose'],
     shouldThrow: true,
   },
 ];

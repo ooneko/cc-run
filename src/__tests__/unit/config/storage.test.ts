@@ -84,7 +84,7 @@ describe('storage.ts - 配置存储管理', () => {
       const { join } = require('node:path');
 
       // 创建目录和损坏的 JSON 文件
-      const configDir = join(process.env.HOME, '.cc-run');
+      const configDir = join(process.env.HOME, '.runcc');
       mkdirSync(configDir, { recursive: true });
       const configFile = join(configDir, 'config.json');
       writeFileSync(configFile, 'invalid json content', 'utf-8');
@@ -104,7 +104,7 @@ describe('storage.ts - 配置存储管理', () => {
       const { join } = require('node:path');
 
       // 创建目录和空配置文件
-      const configDir = join(process.env.HOME, '.cc-run');
+      const configDir = join(process.env.HOME, '.runcc');
       mkdirSync(configDir, { recursive: true });
       const configFile = join(configDir, 'config.json');
       writeFileSync(configFile, '{}', 'utf-8');
@@ -130,7 +130,7 @@ describe('storage.ts - 配置存储管理', () => {
       // 验证文件存在
       const { existsSync, readFileSync } = require('node:fs');
       const { join } = require('node:path');
-      const configFile = join(process.env.HOME, '.cc-run', 'config.json');
+      const configFile = join(process.env.HOME, '.runcc', 'config.json');
 
       expect(existsSync(configFile)).toBe(true);
 
@@ -443,8 +443,8 @@ describe('storage.ts - 配置存储管理', () => {
     test('应返回配置文件的完整路径', () => {
       const path = getConfigFilePath();
 
-      expect(path).toMatch(/\.cc-run\/config\.json$/);
-      expect(path).toContain('.cc-run');
+      expect(path).toMatch(/\.runcc\/config\.json$/);
+      expect(path).toContain('.runcc');
     });
   });
 });

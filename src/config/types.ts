@@ -42,7 +42,7 @@ export interface ProxyConfig {
 }
 
 /**
- * CC-Run 配置文件结构 (~/.cc-run/config.json)
+ * RunCC 配置文件结构 (~/.runcc/config.json)
  */
 export interface CcRunConfig {
   /** 自定义 endpoints */

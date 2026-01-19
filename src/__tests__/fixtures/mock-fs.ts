@@ -45,8 +45,8 @@ let currentContext: MockFsContext | null = null;
  *   });
  *
  *   test('应该正确保存配置', () => {
- *     // 在这里使用 ~/.cc-run/config.json 会指向临时目录
- *     const configPath = join(mockFs.tmpHome, '.cc-run', 'config.json');
+ *     // 在这里使用 ~/.runcc/config.json 会指向临时目录
+ *     const configPath = join(mockFs.tmpHome, '.runcc', 'config.json');
  *     // ...
  *   });
  * });
@@ -58,7 +58,7 @@ export function createMockFs(): MockFsContext {
   }
 
   // 创建临时目录
-  const tmpHome = mkdtempSync(join(tmpdir(), 'cc-run-test-'));
+  const tmpHome = mkdtempSync(join(tmpdir(), 'runcc-test-'));
   const originalHome = process.env.HOME || '';
   const originalTestHome = process.env.CC_RUN_TEST_HOME;
 
@@ -116,7 +116,7 @@ export function getMockHome(): string {
 }
 
 /**
- * 创建 cc-run 配置文件
+ * 创建 runcc 配置文件
  * @param config 配置内容
  */
 export function createCcRunConfig(config: Record<string, unknown>): void {
@@ -124,7 +124,7 @@ export function createCcRunConfig(config: Record<string, unknown>): void {
     throw new Error('Mock FS not active. Call createMockFs() first.');
   }
 
-  const configDir = join(currentContext.tmpHome, '.cc-run');
+  const configDir = join(currentContext.tmpHome, '.runcc');
   const configFile = join(configDir, 'config.json');
 
   // 确保目录存在
@@ -156,7 +156,7 @@ export function createClaudeSettings(settings: Record<string, unknown>): void {
 }
 
 /**
- * 读取 cc-run 配置文件
+ * 读取 runcc 配置文件
  * @returns 配置内容
  */
 export function readCcRunConfig(): Record<string, unknown> {
@@ -164,7 +164,7 @@ export function readCcRunConfig(): Record<string, unknown> {
     throw new Error('Mock FS not active. Call createMockFs() first.');
   }
 
-  const configFile = join(currentContext.tmpHome, '.cc-run', 'config.json');
+  const configFile = join(currentContext.tmpHome, '.runcc', 'config.json');
 
   if (!existsSync(configFile)) {
     throw new Error('配置文件不存在');
@@ -194,7 +194,7 @@ export function readClaudeSettingsConfig(): Record<string, unknown> {
 }
 
 /**
- * 检查 cc-run 配置文件是否存在
+ * 检查 runcc 配置文件是否存在
  * @returns 是否存在
  */
 export function hasCcRunConfig(): boolean {
@@ -202,7 +202,7 @@ export function hasCcRunConfig(): boolean {
     throw new Error('Mock FS not active. Call createMockFs() first.');
   }
 
-  const configFile = join(currentContext.tmpHome, '.cc-run', 'config.json');
+  const configFile = join(currentContext.tmpHome, '.runcc', 'config.json');
   return existsSync(configFile);
 }
 
