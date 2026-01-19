@@ -24,7 +24,7 @@ git status --short
 **如果工作区干净**：直接进入步骤 1。
 
 **如果有未提交更改**：使用 `AskUserQuestion` 询问用户：
-- 先提交更改（使用 `/commit-commands:commit` 或手动提交）
+- 先提交更改（**必须使用 `/commit-commands:commit` skill**）
 - 丢弃更改（`git restore .`）
 - 中止流程
 

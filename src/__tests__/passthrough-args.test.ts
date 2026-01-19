@@ -31,6 +31,18 @@ describe('参数透传功能', () => {
       const result = extractPassthroughArgs(argv);
       expect(result).toEqual(['--prompt', 'hello', '--verbose']);
     });
+
+    test('-- 作为第一个参数时正确提取参数', () => {
+      const argv = ['node', 'script.js', '--', '--help', '--version'];
+      const result = extractPassthroughArgs(argv);
+      expect(result).toEqual(['--help', '--version']);
+    });
+
+    test('-- 作为第一个参数且只有单个参数', () => {
+      const argv = ['node', 'script.js', '--', '--dangerously-skip-permissions'];
+      const result = extractPassthroughArgs(argv);
+      expect(result).toEqual(['--dangerously-skip-permissions']);
+    });
   });
 
   describe('validateDashPosition', () => {
@@ -49,9 +61,14 @@ describe('参数透传功能', () => {
       expect(() => validateDashPosition(argv)).not.toThrow();
     });
 
-    test('-- 作为第一个参数时抛出错误', () => {
+    test('-- 作为第一个参数时允许通过（官方模式 + 参数传递）', () => {
       const argv = ['node', 'script.js', '--', '--verbose'];
-      expect(() => validateDashPosition(argv)).toThrow('必须在 provider 名称或 --claude 选项之后');
+      expect(() => validateDashPosition(argv)).not.toThrow();
+    });
+
+    test('-- 作为第一个参数且有多个参数时允许通过', () => {
+      const argv = ['node', 'script.js', '--', '--dangerously-skip-permissions', '--verbose'];
+      expect(() => validateDashPosition(argv)).not.toThrow();
     });
 
     test('-- 在其他选项之前时抛出错误', () => {

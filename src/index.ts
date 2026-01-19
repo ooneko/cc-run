@@ -118,9 +118,10 @@ program
         console.error('❌ 参数位置不正确');
         console.error('');
         console.error('正确的用法示例:');
-        console.error('  runcc glm -- <claude参数>     # 使用 glm provider 并透传参数');
-        console.error('  runcc --claude -- <参数>       # 恢复官方配置并透传参数');
-        console.error('  runcc glm --claude -- <参数>   # 配置原生 claude 命令使用 glm');
+        console.error('  runcc -- <claude参数>          # 启动官方 Claude 并透传参数');
+        console.error('  runcc glm -- <claude参数>      # 使用 glm provider 并透传参数');
+        console.error('  runcc --claude -- <参数>        # 恢复官方配置并透传参数');
+        console.error('  runcc glm --claude -- <参数>    # 配置原生 claude 命令使用 glm');
         console.error('');
         console.error('说明: -- 分隔符用于将后续参数透传给 Claude CLI');
         process.exit(1);
@@ -130,4 +131,15 @@ program
   });
 
 // 解析参数
-program.parse();
+// 特殊处理: 当 -- 是第一个参数时（runcc -- <args>），
+// 我们需要防止 Commander.js 将 -- 后的参数解析为 [provider]
+// 这种情况下只传递 node 和脚本路径给 Commander.js，
+// 让 provider 为 undefined，从而进入官方模式
+const userArgs = process.argv.slice(2);
+if (userArgs[0] === '--') {
+  // runcc -- <args> -> 只传递前两个元素给 Commander.js
+  program.parse([process.argv[0], process.argv[1]]);
+} else {
+  // 正常情况
+  program.parse();
+}

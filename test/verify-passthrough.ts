@@ -30,8 +30,18 @@ const scenarios = [
     expected: [],
   },
   {
-    name: '场景5: 错误情况 - runcc -- --verbose',
+    name: '场景5: runcc -- --verbose (官方模式 + 参数传递)',
     argv: ['node', 'runcc', '--', '--verbose'],
+    expected: ['--verbose'],
+  },
+  {
+    name: '场景6: runcc -- --dangerously-skip-permissions --verbose',
+    argv: ['node', 'runcc', '--', '--dangerously-skip-permissions', '--verbose'],
+    expected: ['--dangerously-skip-permissions', '--verbose'],
+  },
+  {
+    name: '场景7: 错误情况 - runcc --unknown -- --verbose',
+    argv: ['node', 'runcc', '--unknown', '--', '--verbose'],
     shouldThrow: true,
   },
 ];

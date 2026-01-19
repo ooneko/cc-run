@@ -40,9 +40,9 @@ export function validateDashPosition(argv: string[]): void {
     return;
   }
 
-  // -- 不能是第一个参数
+  // 允许 -- 作为第一个参数（官方模式 + 参数传递）
   if (dashIndex === 0) {
-    throw new PassthroughArgsError('必须在 provider 名称或 --claude 选项之后');
+    return;
   }
 
   // 检查 -- 之前的参数是否包含有效的 provider 或选项
