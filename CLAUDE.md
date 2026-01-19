@@ -4,146 +4,162 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概述
 
-**cc-run** 是一个 Claude CLI 启动器，使用 TypeScript + Bun 开发。核心功能是在官方 API 和多个第三方 API endpoints 之间快速切换。这是一个单文件可执行 CLI 工具，可作为全局命令安装。
+**runcc** 是一个 TypeScript CLI 工具，用于在 Claude Code 中切换不同的 API 端点。它允许用户使用第三方 API 提供商（GLM、DeepSeek、Minimax）或自定义端点，同时保持与 Claude 原生配置的无缝集成。
 
 ## 开发命令
 
+### 运行与构建
 ```bash
-# 安装依赖
-bun install
-
-# 开发模式（直接运行 TypeScript 源码）
-bun run dev
-
-# 构建输出到 dist/index.js
-bun run build
-
-# 构建独立二进制可执行文件
-bun run build:bin
-
-# 全局安装（本地测试）
-bun install -g .
-
-# 配置验证测试工具
-bun test/dry-run.ts config
-bun test/dry-run.ts glm
+bun run dev              # 开发模式运行
+bun run build           # 编译到 dist/
+bun run build:bin       # 编译独立二进制文件
 ```
 
-**注意**: 项目无自动化测试框架、无 linting 配置、无 pre-commit hooks。
+### 测试
+```bash
+bun test                # 运行所有测试
+bun test --watch        # 监视模式
+bun run test:unit       # 仅单元测试
+bun run test:integration # 仅集成测试
+```
+
+### 发布
+```bash
+/publish                # 使用 publish skill 自动化发布流程
+```
 
 ## 核心架构
 
-项目采用三层架构设计：
+### 双配置系统
 
-```
-┌─────────────────────────────────────────┐
-│          CLI Layer (commands)           │
-│  - 参数解析、用户交互、命令编排            │
-├─────────────────────────────────────────┤
-│        Business Logic (utils)           │
-│  - 启动器、环境变量、Claude 配置管理       │
-├─────────────────────────────────────────┤
-│         Data Layer (config)             │
-│  - 配置存储、类型定义、endpoints 管理     │
-└─────────────────────────────────────────┘
-```
+1. **RunCC Config** (`~/.runcc/config.json`)
+   - 存储自定义端点、API token、代理设置
+   - 通过 `src/config/storage.ts` 管理
+   - 结构示例：
+   ```json
+   {
+     "endpoints": [...],
+     "tokens": {"glm": "sk-...", "deepseek": "sk-..."},
+     "lastUsed": "glm",
+     "proxy": {"enabled": true, "url": "http://...", "clearForOfficial": false}
+   }
+   ```
+
+2. **Claude Settings** (`~/.claude/settings.json`)
+   - Claude 原生配置文件
+   - 通过 `src/utils/claude-settings.ts` 管理
+   - 包含 proxy、apiUrl、anthropicApiKey 和 env 配置
+   - 结构示例：
+   ```json
+   {
+     "proxy": "http://...",
+     "apiUrl": "https://...",
+     "anthropicApiKey": "sk-...",
+     "env": {
+       "ANTHROPIC_BASE_URL": "...",
+       "ANTHROPIC_AUTH_TOKEN": "..."
+     }
+   }
+   ```
+
+**关键设计模式：临时修改模式** - 在官方模式下启动时，临时清除第三方配置并在 Claude 退出后恢复。
 
 ### 目录结构
 
 ```
 src/
-├── index.ts              # CLI 入口，Commander 配置，命令路由
-├── commands/             # 命令实现层
-│   ├── run.ts           # 核心启动逻辑（官方/provider/配置模式）
-│   ├── proxy.ts         # 代理管理命令
-│   ├── list.ts          # 列出 endpoints（UTF-8 处理）
-│   ├── add.ts           # 添加自定义 endpoint
-│   └── remove.ts        # 删除 endpoint
-├── config/              # 配置数据层
-│   ├── types.ts         # TypeScript 类型定义
-│   ├── endpoints.ts     # 内置 endpoints (glm/deepseek/minimax)
-│   └── storage.ts       # ~/.runcc/config.json 读写
-└── utils/               # 工具层
-    ├── launcher.ts      # spawn Claude 进程
-    ├── env.ts           # 环境变量构建
-    └── claude-settings.ts # ~/.claude/settings.json 读写
+├── index.ts              # CLI 入口，使用 Commander.js
+├── commands/             # CLI 命令实现
+│   ├── run.ts           # 核心启动逻辑，支持官方/提供商/配置模式
+│   ├── list.ts          # 列出可用端点
+│   ├── add.ts           # 添加自定义端点
+│   ├── remove.ts        # 删除自定义端点
+│   └── proxy.ts         # 代理管理（on/off/reset/status/help）
+├── config/
+│   ├── types.ts         # TypeScript 接口定义
+│   ├── endpoints.ts     # 内置端点定义和模型映射
+│   └── storage.ts       # 配置文件 CRUD 操作
+└── utils/
+    ├── claude-settings.ts  # Claude 配置读写、备份/恢复
+    ├── launcher.ts         # 进程启动和退出码处理
+    ├── env.ts              # ANTHROPIC_* 环境变量构建
+    ├── passthrough-args.ts # -- 分隔符后的参数解析
+    └── output.ts           # UTF-8 安全输出（修复中文显示）
 ```
 
-## 双配置文件系统
+### 关键设计决策
 
-### ~/.runcc/config.json (启动器私有配置)
+1. **UTF-8 处理**：在编译后的二进制文件中 monkey-patch `console.log/error` 确保中文字符正确显示
 
-存储自定义 endpoints、API tokens、最后使用的 endpoint、代理配置。
+2. **临时修改模式**：启动官方 Claude 时临时清除第三方配置，退出后恢复
 
-### ~/.claude/settings.json (Claude 官方配置)
+3. **环境变量策略**：使用 `ANTHROPIC_*` 环境变量而非文件修改来使用第三方 API
 
-存储 `proxy`、`apiUrl`、`anthropicApiKey`，由 Claude CLI 原生读取。
+4. **模型映射**：支持将 Claude 模型层级（haiku/opus/sonnet）映射到提供商特定模型
 
-**关键机制**: 使用 `--claude` 标志可以将第三方 endpoint 配置写入 `~/.claude/settings.json`，使原生 `claude` 命令默认使用该 endpoint。
+5. **代理灵活性**：支持每会话代理配置，可选在官方模式下清除（clearForOfficial）
 
-## 三种启动模式
+6. **参数透传**：通过 `--` 分隔符支持透传参数给 Claude CLI
 
-### 1. 官方模式 (`cc-run`)
-1. 备份当前 Claude 配置
-2. 清除第三方 endpoint 配置
-3. 根据 `clearForOfficial` 决定是否清除 proxy
-4. 启动 Claude（不设置第三方环境变量）
-5. 退出后恢复配置
+7. **交互式提示**：使用 Node.js readline 在未预配置时获取 token 和代理输入
 
-### 2. Provider 模式 (`cc-run glm`)
-1. 从内置或自定义 endpoints 查找配置
-2. 获取 token（首次提示输入并保存）
-3. 通过环境变量启动 Claude:
-   - `ANTHROPIC_BASE_URL`
-   - `ANTHROPIC_AUTH_TOKEN`
-   - `http_proxy`/`https_proxy`
+## 测试策略
 
-### 3. 配置模式 (`cc-run glm --claude`)
-1. 执行 provider 模式启动
-2. 额外写入 `~/.claude/settings.json`
-3. 使原生 `claude` 命令默认使用此 endpoint
+- **单元测试**：测试独立模块（storage、endpoints、env 等）
+- **集成测试**：测试命令工作流（run、list、add、remove、proxy）
+- **测试夹具**：`src/__tests__/fixtures/` 下的 mock 实现（mock-fs、mock-readline、mock-process）
+- **环境隔离**：使用 `CC_RUN_TEST_HOME` 环境变量
+- **手动测试**：`test/` 目录下的 dry-run、mock-claude、verify-passthrough
+
+测试文件位于 `src/__tests__/`，使用 Bun Test 框架。
+
+## 发布流程
+
+项目包含自定义 **publish skill**，自动化 npm 发布：
+1. 预检查（git 状态必须干净）
+2. 版本 bump（`npm version`，创建 commit + tag）
+3. 运行测试
+4. 构建
+5. 生成/更新 CHANGELOG
+6. Git 提交
+7. Git push（需用户确认）
+8. 输出 `npm publish` 命令供手动执行
+
+## 安装测试
+
+```bash
+./test-install.sh       # 完整的安装/测试/卸载循环
+```
+
+## 技术栈
+
+- **Runtime**: Bun
+- **Language**: TypeScript (strict mode, ES2022 target)
+- **CLI Framework**: Commander.js ^12.0.0
+- **Testing**: Bun Test
+- **Minimum Node**: >=18.0.0
+- **License**: Apache-2.0
 
 ## 内置 Endpoints
 
-| 名称 | Endpoint URL |
-|------|--------------|
+| 名称 | Endpoint |
+|------|----------|
 | glm | https://open.bigmodel.cn/api/paas/v4/ |
 | deepseek | https://api.deepseek.com |
 | minimax | https://api.minimax.chat/v1 |
 
-**扩展点**: 添加内置 endpoint 需修改 `src/config/endpoints.ts`
+## Claude Code 技能
 
-## 代码风格约定
+项目在 `.claude/skills/` 中包含 Claude Code 技能：
+- **publish** - 自动化 npm 发布工作流（预检查 → 版本 bump → 测试 → 构建 → CHANGELOG → 提交 → 推送）
 
-- **模块系统**: ES Modules（import 必须显式包含 `.js` 扩展名）
-- **类型系统**: 严格模式 TypeScript
-- **注释风格**: JSDoc 风格（中文）
-- **错误处理**: 使用 `process.exit(1)` 终止，无异常抛出
-- **文件组织**: 按功能分层，单一职责原则
-- **命名约定**:
-  - 文件名: kebab-case (`claude-settings.ts`)
-  - 函数: camelCase
-  - 类型: PascalCase
-  - 常量: UPPER_SNAKE_CASE
+这体现了项目的 dogfooding 方法——使用 Claude Code 工具管理自己的开发工作流。
 
-## 关键技术实现
+## 发布到 npm 的文件
 
-### 环境变量隔离
-使用 `spawn` 的 `env` 选项实现环境变量隔离，避免污染全局环境。
+- `dist/` - 编译后的 JavaScript
+- `package.json` - 包元数据
+- `README.md` - 用户文档
+- `CHANGELOG.md` - 版本历史
 
-### 配置原子操作
-- 官方模式使用备份-修改-恢复模式确保配置安全
-- 文件操作使用同步 API (`readFileSync`, `writeFileSync`)
-- 目录不存在时自动创建 (`mkdirSync` with `recursive: true`)
-
-### UTF-8 输出处理
-`list.ts` 使用 `TextEncoder` 确保中文正确显示（标准 console.log 在某些环境下可能乱码）
-
-### 交互式输入
-使用 Node.js 原生 `readline` 模块实现 token 和代理地址输入
-
-## 依赖外部条件
-
-1. **Claude CLI**: 系统必须已安装 `claude` 命令
-2. **配置目录**: 自动创建 `~/.runcc/` 和 `~/.claude/`
-3. **Node 版本**: >= 18.0.0
+**排除**：`src/`、`test/`、`*.test.ts`、`tsconfig.json`、`runcc` 二进制文件
