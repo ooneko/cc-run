@@ -13,11 +13,7 @@ Claude CLI 启动器，支持切换不同的 API endpoint。
 ## 安装
 
 ```bash
-# 全局安装
-bun install -g .
-
-# 或使用 npm
-npm install -g .
+npm install runcc@latest -g
 ```
 
 ## 快速开始
