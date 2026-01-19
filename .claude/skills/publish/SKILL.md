@@ -1,13 +1,34 @@
 ---
 name: publish
-description: 自动化 npm 包发布准备工作流。版本升级 → 测试 → 构建 → CHANGELOG → 提交 → 打印发布命令（用户手动执行 npm publish）。触发词：发布新版本/publish to npm/bump version/release。
+description: 自动化 npm 包发布准备工作流。预检查 → 询问版本 → npm version → 测试 → 构建 → CHANGELOG → 提交 → 推送 → 打印发布命令（用户手动执行 npm publish）。触发词：发布新版本/publish to npm/bump version/release。
 ---
 
 # NPM 发布工作流
 
-版本升级 → 测试 → 构建 → CHANGELOG → Git 提交 → 可选推送 → 打印发布命令
+预检查 → 提交未保存更改 → 询问版本 → npm version → 测试 → 构建 → CHANGELOG → 提交 → 推送 → 打印发布命令
 
 ## 工作流程
+
+### 0. 预检查（重要！）
+
+在开始任何操作前，**必须先检查 git 状态**：
+
+```bash
+# 检查当前分支
+git branch --show-current
+
+# 检查工作区状态
+git status --short
+```
+
+**如果工作区干净**：直接进入步骤 1。
+
+**如果有未提交更改**：使用 `AskUserQuestion` 询问用户：
+- 先提交更改（使用 `/commit-commands:commit` 或手动提交）
+- 丢弃更改（`git restore .`）
+- 中止流程
+
+**关键原因**：`npm version` 命令要求工作目录必须是干净状态，否则会报错退出。
 
 ### 1. 询问目标版本
 
