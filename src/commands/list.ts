@@ -9,7 +9,7 @@ import { getCustomEndpoints, getToken } from '../config/storage.js';
 function safeLog(message: string): void {
   const encoder = new TextEncoder();
   const data = encoder.encode(message + '\n');
-  Bun.write(Bun.stdout, data);
+  process.stdout.write(data);
 }
 
 function formatEndpoint(name: string, endpoint: string, hasToken: boolean): string {

@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 /**
  * CC-Run CLI 入口
  * Claude 启动器 - 支持切换不同的 API endpoint
@@ -8,15 +8,15 @@
 // 通过 monkey patch console.log/error 确保所有输出都是 UTF-8
 function safeLog(message: string): void {
   const encoder = new TextEncoder();
-  Bun.write(Bun.stdout, encoder.encode(message + '\n'));
+  process.stdout.write(encoder.encode(message + '\n'));
 }
 
 function safeError(message: string): void {
   const encoder = new TextEncoder();
-  Bun.write(Bun.stderr, encoder.encode(message + '\n'));
+  process.stderr.write(encoder.encode(message + '\n'));
 }
 
-// 检测是否在 Bun 编译环境中（通过检查是否有 --compile 标记）
+// 检测是否在 Bun 编译环境中
 const isBunCompiled = typeof Bun !== 'undefined' && !import.meta.dir;
 
 if (isBunCompiled) {
