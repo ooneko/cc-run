@@ -4,6 +4,30 @@
  * Claude 启动器 - 支持切换不同的 API endpoint
  */
 
+// 强制 UTF-8 输出编码（修复 Bun 编译二进制的中文乱码问题）
+// 通过 monkey patch console.log/error 确保所有输出都是 UTF-8
+function safeLog(message: string): void {
+  const encoder = new TextEncoder();
+  Bun.write(Bun.stdout, encoder.encode(message + '\n'));
+}
+
+function safeError(message: string): void {
+  const encoder = new TextEncoder();
+  Bun.write(Bun.stderr, encoder.encode(message + '\n'));
+}
+
+// 检测是否在 Bun 编译环境中（通过检查是否有 --compile 标记）
+const isBunCompiled = typeof Bun !== 'undefined' && !import.meta.dir;
+
+if (isBunCompiled) {
+  console.log = (...args: unknown[]) => {
+    safeLog(args.map(String).join(' '));
+  };
+  console.error = (...args: unknown[]) => {
+    safeError(args.map(String).join(' '));
+  };
+}
+
 import { Command } from 'commander';
 import { list } from './commands/list.js';
 import { add } from './commands/add.js';

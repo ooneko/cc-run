@@ -1,15 +1,15 @@
 {
-  "name": "cc-run",
+  "name": "runcc",
   "version": "0.1.0",
   "description": "CC launcher with endpoint switching support",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "cc-run": "dist/index.js"
+    "runcc": "dist/index.js"
   },
   "scripts": {
     "build": "bun build src/index.ts --outdir dist --target node",
-    "build:bin": "bun build --compile src/index.ts --outfile cc-run",
+    "build:bin": "bun build --compile src/index.ts --outfile runcc",
     "dev": "bun run src/index.ts",
     "prepublishOnly": "bun run build",
     "test": "bun test",
@@ -27,5 +27,22 @@
   },
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ooneko/cc-run.git"
+  },
+  "keywords": [
+    "claude",
+    "code"
+  ],
+  "author": "binhong.hua",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/ooneko/cc-run/issues"
+  },
+  "homepage": "https://github.com/ooneko/cc-run#readme"
 }
