@@ -47,16 +47,18 @@ describe('claude-settings.ts - Claude 配置管理', () => {
     test('当配置文件存在时，应正确读取', () => {
       const testSettings: ClaudeSettings = {
         proxy: 'http://proxy.com:8080',
-        apiUrl: 'https://api.example.com',
-        anthropicApiKey: 'sk-test-key',
+        env: {
+          ANTHROPIC_AUTH_TOKEN: 'sk-test-key',
+          ANTHROPIC_BASE_URL: 'https://api.example.com',
+        },
       };
       writeClaudeSettings(testSettings);
 
       const settings = readClaudeSettings();
 
       expect(settings.proxy).toBe('http://proxy.com:8080');
-      expect(settings.apiUrl).toBe('https://api.example.com');
-      expect(settings.anthropicApiKey).toBe('sk-test-key');
+      expect(settings.env?.ANTHROPIC_AUTH_TOKEN).toBe('sk-test-key');
+      expect(settings.env?.ANTHROPIC_BASE_URL).toBe('https://api.example.com');
     });
 
     test('当配置文件 JSON 损坏时，应返回空对象并输出错误', () => {
@@ -143,12 +145,16 @@ describe('claude-settings.ts - Claude 配置管理', () => {
     });
 
     test('应保留其他配置', () => {
-      writeClaudeSettings({ apiUrl: 'https://api.example.com' });
+      writeClaudeSettings({
+        env: {
+          ANTHROPIC_BASE_URL: 'https://api.example.com',
+        },
+      });
       setClaudeProxy('http://proxy.com');
 
       const settings = readClaudeSettings();
 
-      expect(settings.apiUrl).toBe('https://api.example.com');
+      expect(settings.env?.ANTHROPIC_BASE_URL).toBe('https://api.example.com');
       expect(settings.proxy).toBe('http://proxy.com');
     });
   });
@@ -166,14 +172,16 @@ describe('claude-settings.ts - Claude 配置管理', () => {
     test('应保留其他配置', () => {
       writeClaudeSettings({
         proxy: 'http://proxy.com',
-        apiUrl: 'https://api.example.com',
+        env: {
+          ANTHROPIC_BASE_URL: 'https://api.example.com',
+        },
       });
       removeClaudeProxy();
 
       const settings = readClaudeSettings();
 
       expect(settings.proxy).toBeUndefined();
-      expect(settings.apiUrl).toBe('https://api.example.com');
+      expect(settings.env?.ANTHROPIC_BASE_URL).toBe('https://api.example.com');
     });
 
     test('当 proxy 不存在时，不应报错', () => {
@@ -188,8 +196,10 @@ describe('claude-settings.ts - Claude 配置管理', () => {
   describe('getThirdPartyApi()', () => {
     test('应返回第三方 API 配置', () => {
       writeClaudeSettings({
-        apiUrl: 'https://api.example.com',
-        anthropicApiKey: 'sk-test-key',
+        env: {
+          ANTHROPIC_BASE_URL: 'https://api.example.com',
+          ANTHROPIC_AUTH_TOKEN: 'sk-test-key',
+        },
       });
 
       const api = getThirdPartyApi();
@@ -201,7 +211,11 @@ describe('claude-settings.ts - Claude 配置管理', () => {
     });
 
     test('当配置不完整时，应返回 undefined', () => {
-      writeClaudeSettings({ apiUrl: 'https://api.example.com' });
+      writeClaudeSettings({
+        env: {
+          ANTHROPIC_BASE_URL: 'https://api.example.com',
+        },
+      });
 
       const api = getThirdPartyApi();
 
@@ -242,7 +256,24 @@ describe('claude-settings.ts - Claude 配置管理', () => {
       const settings = readClaudeSettings();
 
       expect(settings.proxy).toBe('http://proxy.com');
-      expect(settings.apiUrl).toBe('https://api.example.com');
+      expect(settings.env?.ANTHROPIC_BASE_URL).toBe('https://api.example.com');
+      expect(settings.env?.ANTHROPIC_AUTH_TOKEN).toBe('sk-test-key');
+    });
+
+    test('应设置模型映射配置', () => {
+      setThirdPartyApi('https://api.example.com', 'sk-test-key', {
+        haiku: 'haiku-model',
+        opus: 'opus-model',
+        sonnet: 'sonnet-model',
+      });
+
+      const settings = readClaudeSettings();
+
+      expect(settings.env?.ANTHROPIC_BASE_URL).toBe('https://api.example.com');
+      expect(settings.env?.ANTHROPIC_AUTH_TOKEN).toBe('sk-test-key');
+      expect(settings.env?.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe('haiku-model');
+      expect(settings.env?.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe('opus-model');
+      expect(settings.env?.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe('sonnet-model');
     });
   });
 
@@ -258,21 +289,34 @@ describe('claude-settings.ts - Claude 配置管理', () => {
 
     test('应保留其他配置', () => {
       writeClaudeSettings({
-        apiUrl: 'https://api.example.com',
-        anthropicApiKey: 'sk-test-key',
         proxy: 'http://proxy.com',
+        env: {
+          ANTHROPIC_BASE_URL: 'https://api.example.com',
+          ANTHROPIC_AUTH_TOKEN: 'sk-test-key',
+          ANTHROPIC_DEFAULT_HAIKU_MODEL: 'haiku-model',
+        },
       });
       removeThirdPartyApi();
 
       const settings = readClaudeSettings();
 
-      expect(settings.apiUrl).toBeUndefined();
-      expect(settings.anthropicApiKey).toBeUndefined();
+      expect(settings.env?.ANTHROPIC_BASE_URL).toBeUndefined();
+      expect(settings.env?.ANTHROPIC_AUTH_TOKEN).toBeUndefined();
+      expect(settings.env?.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBeUndefined();
       expect(settings.proxy).toBe('http://proxy.com');
     });
 
     test('当配置不存在时，不应报错', () => {
       expect(() => removeThirdPartyApi()).not.toThrow();
+    });
+
+    test('当清理后 env 为空时，应删除 env 字段', () => {
+      setThirdPartyApi('https://api.example.com', 'sk-test-key');
+      removeThirdPartyApi();
+
+      const settings = readClaudeSettings();
+
+      expect(settings.env).toBeUndefined();
     });
   });
 
@@ -284,7 +328,9 @@ describe('claude-settings.ts - Claude 配置管理', () => {
     test('应备份当前配置', () => {
       const originalSettings: ClaudeSettings = {
         proxy: 'http://proxy.com',
-        apiUrl: 'https://api.example.com',
+        env: {
+          ANTHROPIC_BASE_URL: 'https://api.example.com',
+        },
       };
       writeClaudeSettings(originalSettings);
 
@@ -304,7 +350,9 @@ describe('claude-settings.ts - Claude 配置管理', () => {
     test('应恢复配置备份', () => {
       const backup: ClaudeSettings = {
         proxy: 'http://proxy.com',
-        apiUrl: 'https://api.example.com',
+        env: {
+          ANTHROPIC_BASE_URL: 'https://api.example.com',
+        },
       };
 
       restoreClaudeSettings(backup);

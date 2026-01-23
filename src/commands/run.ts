@@ -26,6 +26,7 @@ import {
   hasAnthropicEnv,
   clearAnthropicEnv,
   writeClaudeSettings,
+  readClaudeSettings,
 } from '../utils/claude-settings.js';
 import { launchClaude, launchOfficialClaude, waitForExit } from '../utils/launcher.js';
 
@@ -44,7 +45,7 @@ export async function runOfficial(passthroughArgs: string[] = []): Promise<void>
   let needsRestore = false;
 
   // 1. 总是清除第三方 endpoint 配置
-  if (backup.apiUrl || backup.anthropicApiKey) {
+  if (backup.env?.ANTHROPIC_BASE_URL || backup.env?.ANTHROPIC_AUTH_TOKEN) {
     removeThirdPartyApi();
     needsRestore = true;
     console.log('已临时清除第三方 endpoint 配置');
@@ -119,13 +120,13 @@ export async function runProvider(providerName: string, configureClaude: boolean
     console.log('已临时清除 settings.json 中的 ANTHROPIC 配置');
   }
 
-  if (needsRestore) {
+  if (needsRestore && !configureClaude) {
     console.log('Claude 退出后将恢复配置...');
   }
 
-  // 如果需要配置原生 claude 命令
+  // 如果需要配置原生 claude 命令（持久化模式）
   if (configureClaude) {
-    setThirdPartyApi(endpoint.endpoint, token);
+    setThirdPartyApi(endpoint.endpoint, token, endpoint.models);
     console.log(`已配置原生 claude 命令使用 ${providerName}`);
     console.log('使用 "runcc --claude" 可恢复官方配置');
   }
@@ -140,8 +141,8 @@ export async function runProvider(providerName: string, configureClaude: boolean
 
   const exitCode = await waitForExit(child);
 
-  // 恢复配置
-  if (needsRestore) {
+  // 恢复配置（仅在非持久化模式下恢复）
+  if (needsRestore && !configureClaude) {
     restoreClaudeSettings(backup);
     console.log('已恢复配置');
   }

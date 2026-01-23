@@ -61,10 +61,6 @@ export interface CcRunConfig {
 export interface ClaudeSettings {
   /** 代理地址 */
   proxy?: string;
-  /** API 地址 (第三方 endpoint) */
-  apiUrl?: string;
-  /** API Key */
-  anthropicApiKey?: string;
   /** 环境变量 */
   env?: Record<string, string>;
 }

@@ -97,34 +97,61 @@ export function removeClaudeProxy(): void {
  */
 export function getThirdPartyApi(): { apiUrl: string; anthropicApiKey: string } | undefined {
   const settings = readClaudeSettings();
-  if (settings.apiUrl && settings.anthropicApiKey) {
+  const baseUrl = settings.env?.ANTHROPIC_BASE_URL;
+  const authToken = settings.env?.ANTHROPIC_AUTH_TOKEN;
+  if (baseUrl && authToken) {
     return {
-      apiUrl: settings.apiUrl,
-      anthropicApiKey: settings.anthropicApiKey,
+      apiUrl: baseUrl,
+      anthropicApiKey: authToken,
     };
   }
   return undefined;
 }
 
 /**
- * 设置第三方 API 配置
+ * 设置第三方 API 配置（持久化到 ~/.claude/settings.json）
  * @param apiUrl API 地址
  * @param apiKey API Key
+ * @param models 可选的模型映射
  */
-export function setThirdPartyApi(apiUrl: string, apiKey: string): void {
+export function setThirdPartyApi(apiUrl: string, apiKey: string, models?: { haiku?: string; opus?: string; sonnet?: string }): void {
   const settings = readClaudeSettings();
-  settings.apiUrl = apiUrl;
-  settings.anthropicApiKey = apiKey;
+  if (!settings.env) {
+    settings.env = {};
+  }
+  settings.env.ANTHROPIC_BASE_URL = apiUrl;
+  settings.env.ANTHROPIC_AUTH_TOKEN = apiKey;
+
+  if (models) {
+    if (models.haiku) {
+      settings.env.ANTHROPIC_DEFAULT_HAIKU_MODEL = models.haiku;
+    }
+    if (models.opus) {
+      settings.env.ANTHROPIC_DEFAULT_OPUS_MODEL = models.opus;
+    }
+    if (models.sonnet) {
+      settings.env.ANTHROPIC_DEFAULT_SONNET_MODEL = models.sonnet;
+    }
+  }
+
   writeClaudeSettings(settings);
 }
 
 /**
- * 删除第三方 API 配置
+ * 删除第三方 API 配置（从 ~/.claude/settings.json 中删除）
  */
 export function removeThirdPartyApi(): void {
   const settings = readClaudeSettings();
-  delete settings.apiUrl;
-  delete settings.anthropicApiKey;
+  if (settings.env) {
+    delete settings.env.ANTHROPIC_BASE_URL;
+    delete settings.env.ANTHROPIC_AUTH_TOKEN;
+    delete settings.env.ANTHROPIC_DEFAULT_HAIKU_MODEL;
+    delete settings.env.ANTHROPIC_DEFAULT_OPUS_MODEL;
+    delete settings.env.ANTHROPIC_DEFAULT_SONNET_MODEL;
+    if (Object.keys(settings.env).length === 0) {
+      delete settings.env;
+    }
+  }
   writeClaudeSettings(settings);
 }
 

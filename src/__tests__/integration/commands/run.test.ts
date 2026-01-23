@@ -127,8 +127,7 @@ function createDefaultConfig(): CcRunConfig {
 function createDefaultClaudeSettings(): ClaudeSettings {
   return {
     proxy: undefined,
-    apiUrl: undefined,
-    anthropicApiKey: undefined,
+    env: undefined,
   };
 }
 
@@ -188,8 +187,10 @@ describe('runOfficial - 官方模式', () => {
     const { runOfficial } = await import('../../../commands/run.js');
 
     const claudeSettings = createDefaultClaudeSettings();
-    claudeSettings.apiUrl = 'https://api.test.com';
-    claudeSettings.anthropicApiKey = 'test-key';
+    claudeSettings.env = {
+      ANTHROPIC_BASE_URL: 'https://api.test.com',
+      ANTHROPIC_AUTH_TOKEN: 'test-key',
+    };
     createClaudeSettings(claudeSettings as Record<string, unknown>);
 
     setNextExitCode(0);
@@ -208,8 +209,8 @@ describe('runOfficial - 官方模式', () => {
 
     // 验证配置被恢复（因为 runOfficial 会在退出后恢复）
     const afterSettings = readClaudeSettingsConfig();
-    expect(afterSettings.apiUrl).toBe('https://api.test.com');
-    expect(afterSettings.anthropicApiKey).toBe('test-key');
+    expect(afterSettings.env?.ANTHROPIC_BASE_URL).toBe('https://api.test.com');
+    expect(afterSettings.env?.ANTHROPIC_AUTH_TOKEN).toBe('test-key');
 
     expect(mockExit).toHaveBeenCalled();
   });
@@ -275,8 +276,10 @@ describe('runOfficial - 官方模式', () => {
     const { runOfficial } = await import('../../../commands/run.js');
 
     const claudeSettings = createDefaultClaudeSettings();
-    claudeSettings.apiUrl = 'https://api.test.com';
-    claudeSettings.anthropicApiKey = 'test-key';
+    claudeSettings.env = {
+      ANTHROPIC_BASE_URL: 'https://api.test.com',
+      ANTHROPIC_AUTH_TOKEN: 'test-key',
+    };
     claudeSettings.proxy = 'http://proxy.example.com:8080';
     createClaudeSettings(claudeSettings as Record<string, unknown>);
 
@@ -287,8 +290,8 @@ describe('runOfficial - 官方模式', () => {
     } catch (e) {}
 
     const finalSettings = readClaudeSettingsConfig();
-    expect(finalSettings.apiUrl).toBe('https://api.test.com');
-    expect(finalSettings.anthropicApiKey).toBe('test-key');
+    expect(finalSettings.env?.ANTHROPIC_BASE_URL).toBe('https://api.test.com');
+    expect(finalSettings.env?.ANTHROPIC_AUTH_TOKEN).toBe('test-key');
     expect(finalSettings.proxy).toBe('http://proxy.example.com:8080');
   });
 
@@ -496,8 +499,6 @@ describe('runProvider - Provider 模式', () => {
 
     const claudeSettings: ClaudeSettings = {
       proxy: undefined,
-      apiUrl: undefined,
-      anthropicApiKey: undefined,
       env: {
         ANTHROPIC_BASE_URL: 'https://old.api.com',
         ANTHROPIC_AUTH_TOKEN: 'old-token',
@@ -531,8 +532,6 @@ describe('runProvider - Provider 模式', () => {
 
     const claudeSettings: ClaudeSettings = {
       proxy: undefined,
-      apiUrl: undefined,
-      anthropicApiKey: undefined,
       env: {
         ANTHROPIC_BASE_URL: 'https://old.api.com',
       },
@@ -553,7 +552,7 @@ describe('runProvider - Provider 模式', () => {
   });
 });
 
-describe('runProvider - 配置模式 (--claude)', () => {
+describe('runProvider - 配置模式 (--claude，持久化到 settings.json)', () => {
   let originalEnv: NodeJS.ProcessEnv;
 
   beforeEach(() => {
@@ -596,8 +595,8 @@ describe('runProvider - 配置模式 (--claude)', () => {
     clearReadlineState();
 
     const settings = readClaudeSettingsConfig() as ClaudeSettings;
-    expect(settings.apiUrl).toBe('https://open.bigmodel.cn/api/anthropic');
-    expect(settings.anthropicApiKey).toBe('test-token');
+    expect(settings.env?.ANTHROPIC_BASE_URL).toBe('https://open.bigmodel.cn/api/anthropic');
+    expect(settings.env?.ANTHROPIC_AUTH_TOKEN).toBe('test-token');
   });
 
   test('应该启动 Claude 进程', async () => {
@@ -621,7 +620,9 @@ describe('runProvider - 配置模式 (--claude)', () => {
     const { runProvider } = await import('../../../commands/run.js');
 
     const claudeSettings = createDefaultClaudeSettings();
-    claudeSettings.apiUrl = 'https://old.api.com';
+    claudeSettings.env = {
+      ANTHROPIC_BASE_URL: 'https://old.api.com',
+    };
     createClaudeSettings(claudeSettings as Record<string, unknown>);
 
     setReadlineAnswers(['test-token']);
@@ -634,8 +635,8 @@ describe('runProvider - 配置模式 (--claude)', () => {
     clearReadlineState();
 
     const finalSettings = readClaudeSettingsConfig() as ClaudeSettings;
-    expect(finalSettings.apiUrl).toBe('https://open.bigmodel.cn/api/anthropic');
-    expect(finalSettings.anthropicApiKey).toBe('test-token');
+    expect(finalSettings.env?.ANTHROPIC_BASE_URL).toBe('https://open.bigmodel.cn/api/anthropic');
+    expect(finalSettings.env?.ANTHROPIC_AUTH_TOKEN).toBe('test-token');
   });
 
   test('应该支持透传参数', async () => {
@@ -688,15 +689,17 @@ describe('restoreOfficial - 恢复官方配置', () => {
     const { restoreOfficial } = await import('../../../commands/run.js');
 
     const claudeSettings = createDefaultClaudeSettings();
-    claudeSettings.apiUrl = 'https://third-party.api.com';
-    claudeSettings.anthropicApiKey = 'third-party-key';
+    claudeSettings.env = {
+      ANTHROPIC_BASE_URL: 'https://third-party.api.com',
+      ANTHROPIC_AUTH_TOKEN: 'third-party-key',
+    };
     createClaudeSettings(claudeSettings as Record<string, unknown>);
 
     restoreOfficial();
 
     const settings = readClaudeSettingsConfig() as ClaudeSettings;
-    expect(settings.apiUrl).toBeUndefined();
-    expect(settings.anthropicApiKey).toBeUndefined();
+    expect(settings.env?.ANTHROPIC_BASE_URL).toBeUndefined();
+    expect(settings.env?.ANTHROPIC_AUTH_TOKEN).toBeUndefined();
   });
 
   test('应该支持透传参数并启动 Claude', async () => {

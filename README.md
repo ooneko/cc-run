@@ -49,11 +49,11 @@ runcc
 | `runcc add <name> <endpoint> [token]` | 添加自定义 endpoint |
 | `runcc remove <name>` | 删除自定义 endpoint |
 
-### 原生命令配置
+### 原生命令配置（持久化）
 
 | 命令 | 说明 |
 |------|------|
-| `runcc <provider> --claude` | 配置原生 `claude` 命令使用第三方 endpoint |
+| `runcc <provider> --claude` | 配置原生 `claude` 命令使用第三方 endpoint，持久化到 `~/.claude/settings.json` |
 | `runcc --claude` | 恢复原生 `claude` 命令使用官方 endpoint |
 
 ### 代理管理
@@ -102,8 +102,18 @@ runcc
 
 ### ~/.claude/settings.json
 
+**使用官方 endpoint 时：**
 ```json
 {
+  "proxy": "http://agent.baidu.com:8891"
+}
+```
+
+**运行 `runcc glm --claude` 后（使用第三方 endpoint）：**
+```json
+{
+  "apiUrl": "https://open.bigmodel.cn/api/paas/v4/",
+  "anthropicApiKey": "sk-glm-token",
   "proxy": "http://agent.baidu.com:8891"
 }
 ```
@@ -142,18 +152,23 @@ runcc proxy status
 runcc proxy off
 ```
 
-### 配置原生命令
+### 配置原生命令（持久化）
+
+`--claude` 参数会将 endpoint 配置持久化写入 `~/.claude/settings.json`，之后直接运行 `claude` 命令时会使用指定的 endpoint。
 
 ```bash
 # 让原生 claude 命令使用 glm
+# 这会将 glm 配置写入 ~/.claude/settings.json
 runcc glm --claude
 
-# 之后直接使用 claude 命令即可
+# 之后直接使用 claude 命令即可，无需通过 runcc
 claude "你好"
 
 # 恢复使用官方 endpoint
 runcc --claude
 ```
+
+**注意**：`--claude` 配置是持久的，关闭 Claude 后仍然生效。如需切换回官方 endpoint，需运行 `runcc --claude`。
 
 ## Token 管理
 

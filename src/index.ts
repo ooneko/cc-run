@@ -95,7 +95,7 @@ proxyCmd.command('help').description('代理帮助信息').action(proxyHelp);
 // - -- 之后的参数透传给 Claude CLI
 program
   .argument('[provider]', 'provider 名称 (glm, deepseek, minimax 或自定义)')
-  .option('--claude', '配置原生 claude 命令')
+  .option('--claude', '持久化配置到 ~/.claude/settings.json，让 claude 命令使用指定 endpoint')
   .allowExcessArguments(true)  // 允许额外参数以支持 --
   .action(async (provider, options) => {
     try {
@@ -121,9 +121,10 @@ program
         console.error('  runcc -- <claude参数>          # 启动官方 Claude 并透传参数');
         console.error('  runcc glm -- <claude参数>      # 使用 glm provider 并透传参数');
         console.error('  runcc --claude -- <参数>        # 恢复官方配置并透传参数');
-        console.error('  runcc glm --claude -- <参数>    # 配置原生 claude 命令使用 glm');
+        console.error('  runcc glm --claude -- <参数>    # 配置原生 claude 命令使用 glm（持久化）');
         console.error('');
         console.error('说明: -- 分隔符用于将后续参数透传给 Claude CLI');
+        console.error('      --claude 会将配置写入 ~/.claude/settings.json，之后直接运行 claude 即可使用指定 endpoint');
         process.exit(1);
       }
       throw error;
