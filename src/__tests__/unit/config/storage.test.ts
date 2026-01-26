@@ -12,6 +12,8 @@ import {
   removeCustomEndpoint,
   getToken,
   saveToken,
+  clearToken,
+  setCustomEndpointToken,
   getLastUsed,
   setLastUsed,
   getProxyConfig,
@@ -311,6 +313,61 @@ describe('storage.ts - 配置存储管理', () => {
 
       expect(config.tokens?.glm).toBe('glm-token');
       expect(config.tokens?.deepseek).toBe('deepseek-token');
+    });
+  });
+
+  describe('clearToken()', () => {
+    test('应清除指定 provider 的 token', () => {
+      saveToken('glm', 'glm-token');
+
+      clearToken('glm');
+
+      const token = getToken('glm');
+      expect(token).toBeUndefined();
+    });
+
+    test('当 token 不存在时，应保持不变', () => {
+      clearToken('missing');
+
+      const config = readConfig();
+      expect(config.tokens).toEqual({});
+    });
+
+    test('当 tokens 未定义时，应保持不变', () => {
+      writeConfig({ endpoints: [] });
+
+      clearToken('glm');
+
+      const config = readConfig();
+      expect(config.tokens).toBeUndefined();
+    });
+  });
+
+  describe('setCustomEndpointToken()', () => {
+    test('应更新自定义 endpoint 的 token', () => {
+      addCustomEndpoint('custom', 'https://custom.com', 'old-token', { haiku: 'h' });
+
+      const updated = setCustomEndpointToken('custom', 'new-token');
+
+      expect(updated).toBe(true);
+      const endpoints = getCustomEndpoints();
+      expect(endpoints[0].token).toBe('new-token');
+    });
+
+    test('应在没有 token 时设置 token', () => {
+      addCustomEndpoint('custom', 'https://custom.com', '', { haiku: 'h' });
+
+      const updated = setCustomEndpointToken('custom', 'set-token');
+
+      expect(updated).toBe(true);
+      const endpoints = getCustomEndpoints();
+      expect(endpoints[0].token).toBe('set-token');
+    });
+
+    test('当 endpoint 不存在时，应返回 false', () => {
+      const updated = setCustomEndpointToken('missing', 'token');
+
+      expect(updated).toBe(false);
     });
   });
 

@@ -32,6 +32,7 @@ import { Command } from 'commander';
 import { list } from './commands/list.js';
 import { add } from './commands/add.js';
 import { remove } from './commands/remove.js';
+import { tokenSet, tokenClean } from './commands/token.js';
 import {
   proxyOn,
   proxyOff,
@@ -74,6 +75,23 @@ program
   .description('删除自定义 endpoint')
   .argument('<name>', 'endpoint 名称')
   .action(remove);
+
+// runcc token 子命令
+const tokenCmd = program.command('token').description('token 管理');
+
+tokenCmd
+  .command('set')
+  .description('设置 token')
+  .argument('<provider>', 'provider 名称 (glm, deepseek, minimax 或自定义)')
+  .argument('[token]', 'API Token（可选，不传则交互输入）')
+  .action(tokenSet);
+
+tokenCmd
+  .command('clean')
+  .alias('clear')
+  .description('清除 token')
+  .argument('<provider>', 'provider 名称 (glm, deepseek, minimax 或自定义)')
+  .action(tokenClean);
 
 // runcc proxy 子命令
 const proxyCmd = program.command('proxy').description('代理管理');

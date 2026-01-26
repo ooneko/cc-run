@@ -48,6 +48,8 @@ runcc
 | `runcc list` | 列出所有 endpoints |
 | `runcc add <name> <endpoint> [token]` | 添加自定义 endpoint |
 | `runcc remove <name>` | 删除自定义 endpoint |
+| `runcc token set <provider> [token]` | 设置指定 provider 的 token |
+| `runcc token clean <provider>` | 清除指定 provider 的 token（`clean`/`clear` 均可） |
 
 ### 原生命令配置（持久化）
 
@@ -180,6 +182,16 @@ $ runcc glm
 ```
 
 Token 会被保存到 `~/.runcc/config.json`，下次使用时无需再次输入。
+
+也可以通过命令行直接设置或清除：
+
+```bash
+# 设置/覆盖 token（不传 token 会交互输入）
+runcc token set glm sk-xxxx
+
+# 清除 token
+runcc token clean glm
+```
 
 ## 开发
 

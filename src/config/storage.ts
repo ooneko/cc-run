@@ -164,6 +164,51 @@ export function saveToken(provider: string, token: string): void {
 }
 
 /**
+ * 清除指定 provider 的 token
+ * @param provider provider 名称
+ */
+export function clearToken(provider: string): void {
+  const config = readConfig();
+
+  if (!config.tokens || !(provider in config.tokens)) {
+    return;
+  }
+
+  delete config.tokens[provider];
+  writeConfig(config);
+}
+
+/**
+ * 更新自定义 endpoint 的 token
+ * @param name endpoint 名称
+ * @param token API Token
+ * @returns 是否更新成功
+ */
+export function setCustomEndpointToken(name: string, token?: string): boolean {
+  const config = readConfig();
+
+  if (!config.endpoints) {
+    return false;
+  }
+
+  const existingIndex = config.endpoints.findIndex((ep) => ep.name === name);
+  if (existingIndex === -1) {
+    return false;
+  }
+
+  const endpoint = config.endpoints[existingIndex];
+  if (token === undefined) {
+    delete endpoint.token;
+  } else {
+    endpoint.token = token;
+  }
+
+  config.endpoints[existingIndex] = endpoint;
+  writeConfig(config);
+  return true;
+}
+
+/**
  * 获取最后使用的 provider
  * @returns provider 名称，如果不存在则返回 undefined
  */
